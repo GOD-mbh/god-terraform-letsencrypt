@@ -54,7 +54,6 @@ module "iam_assumable_role_admin" {
   oidc_fully_qualified_subjects = ["system:serviceaccount:${local.namespace}:${local.name}"]
 
   tags = {
-    Environment = var.environment
     Project     = var.project
   }
 }
