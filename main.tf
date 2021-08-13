@@ -46,7 +46,7 @@ resource "aws_iam_policy" "this" {
 }
 
 module "iam_assumable_role_admin" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   create_role                   = true
   role_name                     = "${data.aws_eks_cluster.this.id}_${local.name}"
   provider_url                  = replace(data.aws_eks_cluster.this.identity.0.oidc.0.issuer, "https://", "")
@@ -54,6 +54,31 @@ module "iam_assumable_role_admin" {
   oidc_fully_qualified_subjects = ["system:serviceaccount:${local.namespace}:${local.name}"]
 
   tags = {
-    Project     = var.project
+    Project = var.project
   }
+}
+
+resource "local_file" "this" {
+  depends_on = [
+    var.module_depends_on
+  ]
+  content  = yamlencode(local.application)
+  filename = "${path.root}/${local.name}.yaml"
+}
+
+resource "local_file" "issuers" {
+  depends_on = [
+    var.module_depends_on
+  ]
+  content  = yamlencode(local.issuers_application)
+  filename = "${path.root}/${local.name}-issuers.yaml"
+}
+
+resource "local_file" "issuers_each" {
+  for_each = local.issuers
+  depends_on = [
+    var.module_depends_on
+  ]
+  content  = yamlencode(each.value)
+  filename = "${path.root}s/issuers/${local.name}-${each.key}.yaml"
 }
