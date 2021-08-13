@@ -58,23 +58,7 @@ module "iam_assumable_role_admin" {
   }
 }
 
-resource "local_file" "this" {
-  depends_on = [
-    var.module_depends_on
-  ]
-  content  = yamlencode(local.application)
-  filename = "${path.root}/${local.name}.yaml"
-}
-
 resource "local_file" "issuers" {
-  depends_on = [
-    var.module_depends_on
-  ]
-  content  = yamlencode(local.issuers_application)
-  filename = "${path.root}/${local.name}-issuers.yaml"
-}
-
-resource "local_file" "issuers_each" {
   for_each = local.issuers
   depends_on = [
     var.module_depends_on
